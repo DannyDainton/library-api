@@ -4,31 +4,55 @@ method: DELETE
 scripts:
   - type: afterResponse
     code: >-
-      // Request-specific tests for Delete Book
-
-      // Note: Common tests are handled at collection level, but DELETE has
-      special handling
-
-      // DELETE 204 responses have no body, so JSON validation tests don't apply
-
+      // ─── Status Code ────────────────────────────────────────────────────────
 
       pm.test("Status code is 204 No Content", function () {
           pm.response.to.have.status(204);
       });
 
 
-      pm.test("Response body is empty (as expected for 204)", function () {
+      // ─── Response Time ───────────────────────────────────────────────────────
+
+      pm.test("Response time is under 1000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+
+      // ─── No Response Body ────────────────────────────────────────────────────
+
+      pm.test("Response body is empty (no content for 204)", function () {
           pm.expect(pm.response.text()).to.be.empty;
       });
 
 
-      pm.test("Response time is acceptable", function () {
-          pm.expect(pm.response.responseTime).to.be.below(2000);
+      // ─── No Content-Type Header Expected ─────────────────────────────────────
+
+      pm.test("204 response does not return a Content-Type header", function () {
+          // A 204 No Content response must not include a message body,
+          // and therefore should not carry a Content-Type header.
+          const ct = pm.response.headers.get("Content-Type");
+          pm.expect(ct, "Content-Type should be absent or empty for 204").to.satisfy(
+              function (val) { return val === null || val === undefined || val === ""; }
+          );
+      });
+
+
+      // ─── Status Code Range ───────────────────────────────────────────────────
+
+      pm.test("Status code is in the 2xx success range", function () {
+          pm.expect(pm.response.code).to.be.within(200, 299);
       });
 
 
       pm.test("Status code is not 5xx (server error)", function () {
           pm.expect(pm.response.code).to.be.below(500);
+      });
+
+
+      // ─── Response Size ───────────────────────────────────────────────────────
+
+      pm.test("Response size is 0 bytes (no body for 204)", function () {
+          pm.expect(pm.response.responseSize).to.eql(0);
       });
     language: text/javascript
 examples: ./.resources/DELETE – Delete Book.resources/examples

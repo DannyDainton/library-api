@@ -1,4 +1,5 @@
 $kind: collection
+name: Library API
 description: >-
   A comprehensive RESTful API for managing a library's book collection. This API
   provides full CRUD (Create, Read, Update, Delete) operations for book
