@@ -4,7 +4,7 @@
   "name": "Library API Local Mock",
   "protocol": "http",
   "port": 4500,
-  "mockSrc": "./mock-1.js",
+  "mockSrc": "./library-api-mock.js",
   "autoRestartOnChange": true,
   "logging": {
     "level": "verbose",
