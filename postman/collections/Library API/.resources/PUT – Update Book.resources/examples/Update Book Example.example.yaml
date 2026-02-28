@@ -1,0 +1,31 @@
+$kind: http-example
+request:
+  url: "{{baseUrl}}/books/1"
+  method: PUT
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "title": "The Great Gatsby (Updated)",
+        "author": "F. Scott Fitzgerald",
+        "isbn": "9780743273565",
+        "publishedYear": 1926
+      }
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    Content-Type: application/json
+  body:
+    type: json
+    content: |-
+      {
+          "id": 1,
+          "title": "The Great Gatsby (Updated)",
+          "author": "F. Scott Fitzgerald",
+          "isbn": "9780743273565",
+          "publishedYear": 1926
+      }
+order: 1000

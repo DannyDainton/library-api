@@ -1,0 +1,35 @@
+$kind: http-request
+url: "{{baseUrl}}/books/1"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: >-
+      // Request-specific tests for Delete Book
+
+      // Note: Common tests are handled at collection level, but DELETE has
+      special handling
+
+      // DELETE 204 responses have no body, so JSON validation tests don't apply
+
+
+      pm.test("Status code is 204 No Content", function () {
+          pm.response.to.have.status(204);
+      });
+
+
+      pm.test("Response body is empty (as expected for 204)", function () {
+          pm.expect(pm.response.text()).to.be.empty;
+      });
+
+
+      pm.test("Response time is acceptable", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+
+      pm.test("Status code is not 5xx (server error)", function () {
+          pm.expect(pm.response.code).to.be.below(500);
+      });
+    language: text/javascript
+examples: ./.resources/DELETE – Delete Book.resources/examples
+order: 4000

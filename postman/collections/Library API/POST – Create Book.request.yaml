@@ -1,0 +1,63 @@
+$kind: http-request
+url: "{{baseUrl}}/books"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "isbn": "9780743273565",
+      "publishedYear": 1925
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      // Request-specific tests for Create Book
+
+      // Note: Common tests (response time, Content-Type, JSON validation,
+      security headers, 5xx check) are handled at collection level
+
+
+      pm.test("Status code is 201 Created", function () {
+          pm.response.to.have.status(201);
+      });
+
+
+      pm.test("Response has required book properties", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData).to.have.property('title');
+          pm.expect(jsonData).to.have.property('author');
+          pm.expect(jsonData).to.have.property('isbn');
+          pm.expect(jsonData).to.have.property('publishedYear');
+      });
+
+
+      pm.test("Created book has an assigned ID", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.be.a('number');
+          pm.expect(jsonData.id).to.be.above(0);
+      });
+
+
+      pm.test("Response matches request data", function () {
+          const requestData = JSON.parse(pm.request.body.raw);
+          const responseData = pm.response.json();
+          pm.expect(responseData.title).to.eql(requestData.title);
+          pm.expect(responseData.author).to.eql(requestData.author);
+          pm.expect(responseData.isbn).to.eql(requestData.isbn);
+          pm.expect(responseData.publishedYear).to.eql(requestData.publishedYear);
+      });
+
+
+      pm.test("Published year is a valid year", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.publishedYear).to.be.a('number');
+          pm.expect(jsonData.publishedYear).to.be.within(1000, new Date().getFullYear() + 1);
+      });
+    language: text/javascript
+examples: ./.resources/POST – Create Book.resources/examples
+order: 2000

@@ -1,0 +1,63 @@
+$kind: http-request
+url: "{{baseUrl}}/books/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+        "title": "The Great Gatsby (Updated)",
+        "author": "F. Scott Fitzgerald",
+        "isbn": "9780743273565",
+        "publishedYear": 1926
+    }
+scripts:
+  - type: afterResponse
+    code: >-
+      // Request-specific tests for Update Book
+
+      // Note: Common tests (response time, Content-Type, JSON validation,
+      security headers, 5xx check) are handled at collection level
+
+
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+
+      pm.test("Response has required book properties", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.property('id');
+          pm.expect(jsonData).to.have.property('title');
+          pm.expect(jsonData).to.have.property('author');
+          pm.expect(jsonData).to.have.property('isbn');
+          pm.expect(jsonData).to.have.property('publishedYear');
+      });
+
+
+      pm.test("Updated book retains its ID", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.be.a('number');
+          pm.expect(jsonData.id).to.be.above(0);
+      });
+
+
+      pm.test("Response reflects updated data", function () {
+          const requestData = JSON.parse(pm.request.body.raw);
+          const responseData = pm.response.json();
+          pm.expect(responseData.title).to.eql(requestData.title);
+          pm.expect(responseData.author).to.eql(requestData.author);
+          pm.expect(responseData.isbn).to.eql(requestData.isbn);
+          pm.expect(responseData.publishedYear).to.eql(requestData.publishedYear);
+      });
+
+
+      pm.test("Published year is a valid year", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.publishedYear).to.be.a('number');
+          pm.expect(jsonData.publishedYear).to.be.within(1000, new Date().getFullYear() + 1);
+      });
+    language: text/javascript
+examples: ./.resources/PUT – Update Book.resources/examples
+order: 3000

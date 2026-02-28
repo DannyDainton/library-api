@@ -1,0 +1,210 @@
+$kind: collection
+description: >-
+  A comprehensive RESTful API for managing a library's book collection. This API
+  provides full CRUD (Create, Read, Update, Delete) operations for book
+  resources, enabling you to build applications that interact with library data.
+
+
+  ## Getting Started
+
+
+  The Library API uses standard HTTP methods and returns JSON responses. All
+  endpoints are relative to the base URL configured in your environment.
+
+
+  **Base URL:** `{{baseUrl}}`
+
+
+  Set the `baseUrl` variable in your active environment to point to your Library
+  API server (e.g., `https://api.library.example.com` or
+  `http://localhost:3000`).
+
+
+  ## Authentication
+
+
+  Currently, this collection does not have authentication configured. If your
+  Library API requires authentication, you can configure it at the collection
+  level by:
+
+
+  - Clicking on the collection settings
+      
+  - Navigating to the "Authorization" tab
+      
+  - Selecting your authentication type (API Key, Bearer Token, OAuth 2.0, etc.)
+      
+
+  ## Collection Variables
+
+
+  This collection uses variables to maintain state across requests and make the
+  API easier to test:
+
+
+  | Variable | Description | Example Value | Usage |
+
+  | --- | --- | --- | --- |
+
+  | `bookId` | The unique identifier of a book resource | `1`, `42`, `123` |
+  Automatically set after creating a book. Used in GET, PUT, and DELETE requests
+  to target specific books. |
+
+
+  **Note:** The `bookId` variable is automatically populated when you
+  successfully create a book using the "Create Book" request. You can also
+  manually set it to test operations on existing books.
+
+
+  ## API Endpoints
+
+
+  This collection includes the following endpoints:
+
+
+  1. **Get Book** - Retrieve details of a specific book
+      
+  2. **Create Book** - Add a new book to the library
+      
+  3. **Update Book** - Modify an existing book's information
+      
+  4. **Delete Book** - Remove a book from the library
+      
+
+  ## Book Resource Schema
+
+
+  All book resources follow this JSON structure:
+
+
+  ``` json
+
+  {
+    "id": 1,
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "isbn": "9780743273565",
+    "publishedYear": 1925
+  }
+
+   ```
+
+  ## Testing
+
+
+  Each request includes comprehensive test scripts that validate:
+
+
+  - Response status codes
+      
+  - Response times
+      
+  - Content types
+      
+  - Response body structure and data types
+      
+  - Business logic and data integrity
+      
+
+  Run the entire collection using the Collection Runner to execute all requests
+  in sequence and verify the API's functionality.
+
+
+  ## Common Response Codes
+
+
+  - `200 OK` - Request succeeded
+      
+  - `201 Created` - Resource successfully created
+      
+  - `204 No Content` - Resource successfully deleted
+      
+  - `400 Bad Request` - Invalid request data
+      
+  - `404 Not Found` - Resource not found
+      
+  - `500 Internal Server Error` - Server error
+      
+
+  ## Support
+
+
+  For issues, questions, or feature requests related to the Library API, please
+  contact your API administrator or development team.
+variables:
+  bookId: 119-7876
+scripts:
+  - type: http:afterResponse
+    code: >-
+      // Collection-level tests for Library API
+
+      // These tests run for ALL requests in the collection
+
+
+      // Performance test
+
+      pm.test("Response time is under 2000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(2000);
+      });
+
+
+      // Skip Content-Type and JSON validation for 204 No Content responses
+
+      if (pm.response.code !== 204) {
+          pm.test("Content-Type header is present", function () {
+              pm.response.to.have.header("Content-Type");
+          });
+
+          pm.test("Response is JSON format", function () {
+              const contentType = pm.response.headers.get("Content-Type");
+              pm.expect(contentType).to.include("application/json");
+          });
+
+          pm.test("Response body is valid JSON", function () {
+              pm.response.to.be.json;
+          });
+      }
+
+
+      // Security header check - skip for mock servers that may not include this
+      header
+
+      // pm.test("X-Content-Type-Options header is present (security)", function
+      () {
+
+      //     pm.response.to.have.header("X-Content-Type-Options");
+
+      // });
+
+
+      // Server error check
+
+      pm.test("Status code is not 5xx (server error)", function () {
+          pm.expect(pm.response.code).to.be.below(500);
+      });
+
+
+      // Response size check (skip for 204 No Content)
+
+      if (pm.response.code !== 204) {
+          pm.test("Response size is under 1MB", function () {
+              pm.expect(pm.response.responseSize).to.be.below(1048576);
+          });
+      }
+
+
+      // Valid HTTP status code range
+
+      pm.test("Valid HTTP status code (100-599)", function () {
+          pm.expect(pm.response.code).to.be.within(100, 599);
+      });
+
+
+      // Debug logging
+
+      console.log("Request: " + pm.info.requestName);
+
+      console.log("Status: " + pm.response.code + " " + pm.response.status);
+
+      console.log("Response time: " + pm.response.responseTime + "ms");
+    language: text/javascript
