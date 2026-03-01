@@ -1,5 +1,4 @@
 $kind: http-request
-name: Get All Books
 description: >-
   # Get Book by ID
 

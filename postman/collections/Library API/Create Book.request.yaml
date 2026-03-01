@@ -1,5 +1,4 @@
 $kind: http-request
-name: Create Book
 url: "{{baseUrl}}/books"
 method: POST
 headers:

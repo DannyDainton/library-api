@@ -1,5 +1,4 @@
 $kind: http-request
-name: Delete Book
 url: "{{baseUrl}}/books/1"
 method: DELETE
 scripts:
