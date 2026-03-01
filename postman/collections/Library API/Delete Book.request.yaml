@@ -1,33 +1,39 @@
 $kind: http-request
+name: Delete Book
 url: "{{baseUrl}}/books/1"
 method: DELETE
 scripts:
   - type: afterResponse
     code: >-
-      // ─── Status Code ────────────────────────────────────────────────────────
+      // ─── Status Code
+      ────────────────────────────────────────────────────────
 
       pm.test("Status code is 204 No Content", function () {
           pm.response.to.have.status(204);
       });
 
 
-      // ─── Response Time ───────────────────────────────────────────────────────
+      // ─── Response Time
+      ───────────────────────────────────────────────────────
 
       pm.test("Response time is under 1000ms", function () {
           pm.expect(pm.response.responseTime).to.be.below(1000);
       });
 
 
-      // ─── No Response Body ────────────────────────────────────────────────────
+      // ─── No Response Body
+      ────────────────────────────────────────────────────
 
       pm.test("Response body is empty (no content for 204)", function () {
           pm.expect(pm.response.text()).to.be.empty;
       });
 
 
-      // ─── No Content-Type Header Expected ─────────────────────────────────────
+      // ─── No Content-Type Header Expected
+      ─────────────────────────────────────
 
-      pm.test("204 response does not return a Content-Type header", function () {
+      pm.test("204 response does not return a Content-Type header", function ()
+      {
           // A 204 No Content response must not include a message body,
           // and therefore should not carry a Content-Type header.
           const ct = pm.response.headers.get("Content-Type");
@@ -37,7 +43,8 @@ scripts:
       });
 
 
-      // ─── Status Code Range ───────────────────────────────────────────────────
+      // ─── Status Code Range
+      ───────────────────────────────────────────────────
 
       pm.test("Status code is in the 2xx success range", function () {
           pm.expect(pm.response.code).to.be.within(200, 299);
@@ -49,11 +56,11 @@ scripts:
       });
 
 
-      // ─── Response Size ───────────────────────────────────────────────────────
+      // ─── Response Size
+      ───────────────────────────────────────────────────────
 
       pm.test("Response size is 0 bytes (no body for 204)", function () {
           pm.expect(pm.response.responseSize).to.eql(0);
       });
     language: text/javascript
-examples: ./.resources/DELETE – Delete Book.resources/examples
 order: 4000
