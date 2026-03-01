@@ -1,0 +1,119 @@
+$kind: http-example
+name: Get All Books
+description: >-
+  # Get Book by ID
+
+
+  ## Overview
+
+
+  This endpoint retrieves detailed information about a single book from the
+  library by its unique identifier. Use this endpoint when you need to fetch
+  complete book details for display, editing, or reference purposes.
+
+
+  ## HTTP Method and Endpoint
+
+
+  ```
+
+  GET {{baseUrl}}/books/:id
+
+   ```
+
+  ## Path Parameters
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `id` | integer | Yes | The unique identifier of the book to retrieve. Must
+  be a valid book ID that exists in the library database. |
+
+
+  **Example:** `/books/1` retrieves the book with ID 1.
+
+
+  ## Response Format
+
+
+  ### Success Response (200 OK)
+
+
+  The endpoint returns a JSON object containing the book's details:
+
+
+  ``` json
+
+  {
+    "id": 1,
+    "title": "Book Title",
+    "author": "Author Name"
+  }
+
+   ```
+
+  ### Response Fields
+
+
+  | Field | Type | Description |
+
+  | --- | --- | --- |
+
+  | `id` | integer | The unique identifier of the book |
+
+  | `title` | string | The title of the book |
+
+  | `author` | string | The name of the book's author |
+
+
+  ## Example Use Cases
+
+
+  1. **Display Book Details**: Fetch complete information about a specific book
+  to display on a book detail page
+      
+  2. **Verify Book Existence**: Check if a book with a specific ID exists in the
+  library
+      
+  3. **Data Validation**: Retrieve current book data before performing update
+  operations
+      
+  4. **Reference Lookup**: Get book information for citation or reference
+  purposes
+      
+
+  ## Endpoint Behavior Notes
+
+
+  - The endpoint expects a valid integer book ID in the URL path
+      
+  - If the book ID doesn't exist, the API may return a 404 Not Found error
+      
+  - Response time should typically be under 2000ms
+      
+  - The response includes a `Content-Type: application/json` header
+      
+  - All required fields (id, title, author) are guaranteed to be present and
+  non-empty in successful responses
+request:
+  url: "{{baseUrl}}/books"
+  method: GET
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    content-type: application/json
+    date: Sun, 01 Mar 2026 22:27:31 GMT
+    connection: keep-alive
+    keep-alive: timeout=5
+    transfer-encoding: chunked
+  body:
+    type: json
+    content: '[{"id":1,"title":"The Great Gatsby","author":"F. Scott
+      Fitzgerald","isbn":"9780743273565","publishedYear":1925},{"id":2,"title":"To
+      Kill a Mockingbird","author":"Harper
+      Lee","isbn":"9780061935466","publishedYear":1960},{"id":3,"title":"1984","author":"George
+      Orwell","isbn":"9780451524935","publishedYear":1949}]'
+order: 3517748886896858

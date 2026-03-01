@@ -1,0 +1,232 @@
+$kind: http-request
+name: Get All Books
+description: >-
+  # Get Book by ID
+
+
+  ## Overview
+
+
+  This endpoint retrieves detailed information about a single book from the
+  library by its unique identifier. Use this endpoint when you need to fetch
+  complete book details for display, editing, or reference purposes.
+
+
+  ## HTTP Method and Endpoint
+
+
+  ```
+
+  GET {{baseUrl}}/books/:id
+
+   ```
+
+  ## Path Parameters
+
+
+  | Parameter | Type | Required | Description |
+
+  | --- | --- | --- | --- |
+
+  | `id` | integer | Yes | The unique identifier of the book to retrieve. Must
+  be a valid book ID that exists in the library database. |
+
+
+  **Example:** `/books/1` retrieves the book with ID 1.
+
+
+  ## Response Format
+
+
+  ### Success Response (200 OK)
+
+
+  The endpoint returns a JSON object containing the book's details:
+
+
+  ``` json
+
+  {
+    "id": 1,
+    "title": "Book Title",
+    "author": "Author Name"
+  }
+
+   ```
+
+  ### Response Fields
+
+
+  | Field | Type | Description |
+
+  | --- | --- | --- |
+
+  | `id` | integer | The unique identifier of the book |
+
+  | `title` | string | The title of the book |
+
+  | `author` | string | The name of the book's author |
+
+
+  ## Example Use Cases
+
+
+  1. **Display Book Details**: Fetch complete information about a specific book
+  to display on a book detail page
+      
+  2. **Verify Book Existence**: Check if a book with a specific ID exists in the
+  library
+      
+  3. **Data Validation**: Retrieve current book data before performing update
+  operations
+      
+  4. **Reference Lookup**: Get book information for citation or reference
+  purposes
+      
+
+  ## Endpoint Behavior Notes
+
+
+  - The endpoint expects a valid integer book ID in the URL path
+      
+  - If the book ID doesn't exist, the API may return a 404 Not Found error
+      
+  - Response time should typically be under 2000ms
+      
+  - The response includes a `Content-Type: application/json` header
+      
+  - All required fields (id, title, author) are guaranteed to be present and
+  non-empty in successful responses
+url: "{{baseUrl}}/books"
+method: GET
+scripts:
+  - type: afterResponse
+    code: >-
+      // ─── Status Code
+      ────────────────────────────────────────────────────────
+
+      pm.test("Status code is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+
+      // ─── Response Time
+      ───────────────────────────────────────────────────────
+
+      pm.test("Response time is under 1000ms", function () {
+          pm.expect(pm.response.responseTime).to.be.below(1000);
+      });
+
+
+      // ─── Content-Type Header
+      ─────────────────────────────────────────────────
+
+      pm.test("Content-Type is application/json", function () {
+          pm.expect(pm.response.headers.get("Content-Type")).to.include("application/json");
+      });
+
+
+      // ─── Response is an Object (not an array)
+      ────────────────────────────────
+
+      pm.test("Response body is a JSON object", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.be.an('object').and.not.an('array');
+      });
+
+
+      // ─── Required Fields Present
+      ─────────────────────────────────────────────
+
+      pm.test("Response contains all required book fields", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData).to.have.all.keys('id', 'title', 'author', 'isbn', 'publishedYear');
+      });
+
+
+      // ─── Field Type Validation
+      ───────────────────────────────────────────────
+
+      pm.test("id is a positive integer", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.id).to.be.a('number');
+          pm.expect(jsonData.id).to.satisfy(Number.isInteger, 'id should be an integer');
+          pm.expect(jsonData.id).to.be.above(0);
+      });
+
+
+      pm.test("title is a non-empty string", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.title).to.be.a('string').and.not.empty;
+      });
+
+
+      pm.test("author is a non-empty string", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.author).to.be.a('string').and.not.empty;
+      });
+
+
+      pm.test("isbn is a non-empty string", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.isbn).to.be.a('string').and.not.empty;
+      });
+
+
+      pm.test("publishedYear is a valid 4-digit year", function () {
+          const jsonData = pm.response.json();
+          pm.expect(jsonData.publishedYear).to.be.a('number');
+          pm.expect(jsonData.publishedYear).to.satisfy(Number.isInteger, 'publishedYear should be an integer');
+          pm.expect(jsonData.publishedYear).to.be.within(1000, new Date().getFullYear() + 1);
+      });
+
+
+      // ─── No Extra Unexpected Fields
+      ──────────────────────────────────────────
+
+      pm.test("Response does not contain unexpected extra fields", function () {
+          const jsonData = pm.response.json();
+          const allowedKeys = ['id', 'title', 'author', 'isbn', 'publishedYear'];
+          const actualKeys = Object.keys(jsonData);
+          actualKeys.forEach(function (key) {
+              pm.expect(allowedKeys).to.include(key, `Unexpected field: ${key}`);
+          });
+      });
+
+
+      // ─── ID Matches Path Parameter
+      ───────────────────────────────────────────
+
+      pm.test("Returned book id matches the requested path id", function () {
+          const jsonData = pm.response.json();
+          const urlParts = pm.request.url.toString().split('/');
+          const pathId = parseInt(urlParts[urlParts.length - 1], 10);
+          if (!isNaN(pathId)) {
+              pm.expect(jsonData.id).to.eql(pathId);
+          }
+      });
+
+
+      // ─── ISBN Format
+      ─────────────────────────────────────────────────────────
+
+      pm.test("isbn has a plausible length (10 or 13 digits)", function () {
+          const jsonData = pm.response.json();
+          const digits = jsonData.isbn.replace(/[^0-9]/g, '');
+          pm.expect([10, 13]).to.include(digits.length);
+      });
+
+
+      // ─── No Null Values on Required Fields
+      ───────────────────────────────────
+
+      pm.test("Required fields are not null", function () {
+          const jsonData = pm.response.json();
+          ['id', 'title', 'author', 'isbn', 'publishedYear'].forEach(function (field) {
+              pm.expect(jsonData[field], `${field} should not be null`).to.not.be.null;
+              pm.expect(jsonData[field], `${field} should not be undefined`).to.not.be.undefined;
+          });
+      });
+    language: text/javascript
+order: 1822
+examples: ./.resources/Get All Books.resources/examples
