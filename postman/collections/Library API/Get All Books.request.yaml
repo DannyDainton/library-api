@@ -126,105 +126,111 @@ scripts:
       });
 
 
-      // ─── Response is an Object (not an array)
-      ────────────────────────────────
+      // ─── Response is an Array ─────────────────────────────────────────────
 
-      pm.test("Response body is a JSON object", function () {
+      pm.test("Response body is a JSON array", function () {
           const jsonData = pm.response.json();
-          pm.expect(jsonData).to.be.an('object').and.not.an('array');
+          pm.expect(jsonData).to.be.an('array');
       });
 
 
-      // ─── Required Fields Present
-      ─────────────────────────────────────────────
+      // ─── Array is Not Empty ───────────────────────────────────────────────
 
-      pm.test("Response contains all required book fields", function () {
+      pm.test("Response array is not empty", function () {
           const jsonData = pm.response.json();
-          pm.expect(jsonData).to.have.all.keys('id', 'title', 'author', 'isbn', 'publishedYear');
+          pm.expect(jsonData.length).to.be.above(0);
       });
 
 
-      // ─── Field Type Validation
-      ───────────────────────────────────────────────
+      // ─── Required Fields Present ─────────────────────────────────────────────
 
-      pm.test("id is a positive integer", function () {
+      pm.test("Every book contains all required fields", function () {
           const jsonData = pm.response.json();
-          pm.expect(jsonData.id).to.be.a('number');
-          pm.expect(jsonData.id).to.satisfy(Number.isInteger, 'id should be an integer');
-          pm.expect(jsonData.id).to.be.above(0);
-      });
-
-
-      pm.test("title is a non-empty string", function () {
-          const jsonData = pm.response.json();
-          pm.expect(jsonData.title).to.be.a('string').and.not.empty;
-      });
-
-
-      pm.test("author is a non-empty string", function () {
-          const jsonData = pm.response.json();
-          pm.expect(jsonData.author).to.be.a('string').and.not.empty;
-      });
-
-
-      pm.test("isbn is a non-empty string", function () {
-          const jsonData = pm.response.json();
-          pm.expect(jsonData.isbn).to.be.a('string').and.not.empty;
-      });
-
-
-      pm.test("publishedYear is a valid 4-digit year", function () {
-          const jsonData = pm.response.json();
-          pm.expect(jsonData.publishedYear).to.be.a('number');
-          pm.expect(jsonData.publishedYear).to.satisfy(Number.isInteger, 'publishedYear should be an integer');
-          pm.expect(jsonData.publishedYear).to.be.within(1000, new Date().getFullYear() + 1);
-      });
-
-
-      // ─── No Extra Unexpected Fields
-      ──────────────────────────────────────────
-
-      pm.test("Response does not contain unexpected extra fields", function () {
-          const jsonData = pm.response.json();
-          const allowedKeys = ['id', 'title', 'author', 'isbn', 'publishedYear'];
-          const actualKeys = Object.keys(jsonData);
-          actualKeys.forEach(function (key) {
-              pm.expect(allowedKeys).to.include(key, `Unexpected field: ${key}`);
+          jsonData.forEach(function (book, index) {
+              pm.expect(book, `Book at index ${index}`).to.have.all.keys('id', 'title', 'author', 'isbn', 'publishedYear');
           });
       });
 
 
-      // ─── ID Matches Path Parameter
-      ───────────────────────────────────────────
+      // ─── Field Type Validation ───────────────────────────────────────────────
 
-      pm.test("Returned book id matches the requested path id", function () {
+      pm.test("id is a positive integer for every book", function () {
           const jsonData = pm.response.json();
-          const urlParts = pm.request.url.toString().split('/');
-          const pathId = parseInt(urlParts[urlParts.length - 1], 10);
-          if (!isNaN(pathId)) {
-              pm.expect(jsonData.id).to.eql(pathId);
-          }
+          jsonData.forEach(function (book, index) {
+              pm.expect(book.id, `id at index ${index}`).to.be.a('number');
+              pm.expect(book.id, `id at index ${index}`).to.satisfy(Number.isInteger, 'id should be an integer');
+              pm.expect(book.id, `id at index ${index}`).to.be.above(0);
+          });
       });
 
 
-      // ─── ISBN Format
-      ─────────────────────────────────────────────────────────
-
-      pm.test("isbn has a plausible length (10 or 13 digits)", function () {
+      pm.test("title is a non-empty string for every book", function () {
           const jsonData = pm.response.json();
-          const digits = jsonData.isbn.replace(/[^0-9]/g, '');
-          pm.expect([10, 13]).to.include(digits.length);
+          jsonData.forEach(function (book, index) {
+              pm.expect(book.title, `title at index ${index}`).to.be.a('string').and.not.empty;
+          });
       });
 
 
-      // ─── No Null Values on Required Fields
-      ───────────────────────────────────
-
-      pm.test("Required fields are not null", function () {
+      pm.test("author is a non-empty string for every book", function () {
           const jsonData = pm.response.json();
-          ['id', 'title', 'author', 'isbn', 'publishedYear'].forEach(function (field) {
-              pm.expect(jsonData[field], `${field} should not be null`).to.not.be.null;
-              pm.expect(jsonData[field], `${field} should not be undefined`).to.not.be.undefined;
+          jsonData.forEach(function (book, index) {
+              pm.expect(book.author, `author at index ${index}`).to.be.a('string').and.not.empty;
+          });
+      });
+
+
+      pm.test("isbn is a non-empty string for every book", function () {
+          const jsonData = pm.response.json();
+          jsonData.forEach(function (book, index) {
+              pm.expect(book.isbn, `isbn at index ${index}`).to.be.a('string').and.not.empty;
+          });
+      });
+
+
+      pm.test("publishedYear is a valid 4-digit year for every book", function () {
+          const jsonData = pm.response.json();
+          jsonData.forEach(function (book, index) {
+              pm.expect(book.publishedYear, `publishedYear at index ${index}`).to.be.a('number');
+              pm.expect(book.publishedYear, `publishedYear at index ${index}`).to.satisfy(Number.isInteger, 'publishedYear should be an integer');
+              pm.expect(book.publishedYear, `publishedYear at index ${index}`).to.be.within(1000, new Date().getFullYear() + 1);
+          });
+      });
+
+
+      // ─── No Extra Unexpected Fields ──────────────────────────────────────────
+
+      pm.test("No book contains unexpected extra fields", function () {
+          const jsonData = pm.response.json();
+          const allowedKeys = ['id', 'title', 'author', 'isbn', 'publishedYear'];
+          jsonData.forEach(function (book, index) {
+              Object.keys(book).forEach(function (key) {
+                  pm.expect(allowedKeys, `Unexpected field "${key}" at index ${index}`).to.include(key);
+              });
+          });
+      });
+
+
+      // ─── ISBN Format ─────────────────────────────────────────────────────────
+
+      pm.test("isbn has a plausible length (10 or 13 digits) for every book", function () {
+          const jsonData = pm.response.json();
+          jsonData.forEach(function (book, index) {
+              const digits = book.isbn.replace(/[^0-9]/g, '');
+              pm.expect([10, 13], `isbn length at index ${index}`).to.include(digits.length);
+          });
+      });
+
+
+      // ─── No Null Values on Required Fields ───────────────────────────────────
+
+      pm.test("Required fields are not null for every book", function () {
+          const jsonData = pm.response.json();
+          jsonData.forEach(function (book, index) {
+              ['id', 'title', 'author', 'isbn', 'publishedYear'].forEach(function (field) {
+                  pm.expect(book[field], `${field} at index ${index} should not be null`).to.not.be.null;
+                  pm.expect(book[field], `${field} at index ${index} should not be undefined`).to.not.be.undefined;
+              });
           });
       });
     language: text/javascript
