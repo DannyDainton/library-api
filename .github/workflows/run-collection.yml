@@ -1,0 +1,33 @@
+name: Run Postman Collection
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-collection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Run collection
+        run: |
+          postman collection run "postman/collections/Library API" \
+            --mock "postman/mocks/library-api-mock.js" \
+            -e "postman/environments/Library API Environment.environment.yaml"
