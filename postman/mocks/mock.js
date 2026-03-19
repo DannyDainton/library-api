@@ -13,6 +13,7 @@ const server = http.createServer((req, res) => {
 
   const usersMatch = pathname.match(/^\/users\/(\d+)$/);
   const isUsersRoot = pathname === "/users";
+  const passwordMatch = pathname.match(/^\/users\/(\d+)\/password$/);
 
   // @endpoint GET /users
   if (method === "GET" && isUsersRoot) {
@@ -96,6 +97,35 @@ const server = http.createServer((req, res) => {
     const deleted = users.splice(index, 1)[0];
     res.writeHead(200, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ message: "User deleted successfully", user: deleted }));
+    return;
+  }
+
+  // @endpoint PATCH /users/:userId/password
+  if (method === "PATCH" && passwordMatch) {
+    const userId = parseInt(passwordMatch[1], 10);
+    let body = "";
+    req.on("data", (chunk) => (body += chunk));
+    req.on("end", () => {
+      const user = users.find((u) => u.id === userId);
+      if (!user) {
+        res.writeHead(404, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "User not found", userId }));
+        return;
+      }
+      try {
+        const parsed = JSON.parse(body);
+        if (!parsed.currentPassword || !parsed.newPassword) {
+          res.writeHead(400, { "Content-Type": "application/json" });
+          res.end(JSON.stringify({ error: "currentPassword and newPassword are required" }));
+          return;
+        }
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ message: "Password changed successfully" }));
+      } catch (e) {
+        res.writeHead(400, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "Invalid JSON body" }));
+      }
+    });
     return;
   }
 
