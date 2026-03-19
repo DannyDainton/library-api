@@ -29,5 +29,5 @@ jobs:
       - name: Run collection
         run: |
           postman collection run "postman/collections/Library_API" \
-            --mock "postman/mocks/library-api-mock.js" \
-            -e "postman/environments/Library_API_Environment.environment.yaml"
+            --environment "postman/environments/Library_API_Environment.environment.yaml" \
+            --mock "postman/mocks/library-api-mock.js"
