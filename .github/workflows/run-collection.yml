@@ -28,6 +28,6 @@ jobs:
 
       - name: Run collection
         run: |
-          postman collection run "postman/collections/Library API" \
+          postman collection run "postman/collections/Library_API" \
             --mock "postman/mocks/library-api-mock.js" \
-            -e "postman/environments/Library API Environment.environment.yaml"
+            -e "postman/environments/Library_API_Environment.environment.yaml"
