@@ -4,7 +4,7 @@ workspace:
 
 # Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
 cloudResources:
-  collections:
+  collections: null
   environments: {}
 
 # All resources in the `postman/` folder are automatically registered in Local View.
