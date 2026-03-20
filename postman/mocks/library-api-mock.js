@@ -11,7 +11,7 @@ const server = http.createServer((req, res) => {
   const { method, url } = req;
   const parsedUrl = new URL(url, `http://localhost:${PORT}`);
   const pathname = parsedUrl.pathname;
-
+  
   // @endpoint GET /books
   if (method === "GET" && pathname === "/books" && !parsedUrl.search) {
     res.writeHead(200, { "Content-Type": "application/json" });
