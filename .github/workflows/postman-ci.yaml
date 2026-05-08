@@ -13,8 +13,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Postman CLI
         run: curl -o- "https://dl-cli.pstmn.io/install/unix.sh" | sh
-      - name: Authenticate with Postman
-        run: postman login --with-api-key "${{ secrets.POSTMAN_API_KEY }}"
       - name: Run API test collection
         run: |
           postman collection run "postman/collections/My_API" \
