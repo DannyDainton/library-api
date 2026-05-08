@@ -1,0 +1,31 @@
+name: API Tests
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+jobs:
+  api-tests:
+    name: Run Postman Collection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Postman CLI
+        run: curl -o- "https://dl-cli.pstmn.io/install/unix.sh" | sh
+      - name: Authenticate with Postman
+        run: postman login --with-api-key "${{ secrets.POSTMAN_API_KEY }}"
+      - name: Run API test collection
+        run: |
+          postman collection run "postman/collections/My_API" \
+          --environment "postman/environments/My_API_Environment.environment.yaml"
+  deploy:
+    name: Deploy
+    needs: api-tests
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Deploy application
+        run: echo "Tests passed — deploying to production"
